@@ -31,7 +31,7 @@ let persons = [
 }
 
 
-
+app.use(express.static('build'))
 app.use(cors())
 
 app.get('/api/persons', (req, res) => {
