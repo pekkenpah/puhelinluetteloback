@@ -1,5 +1,7 @@
 const express = require('express')
 const app = express()
+var morgan = require('morgan')
+const cors = require('cors')
 
 let persons = [
     {
@@ -24,6 +26,13 @@ let persons = [
     },
  ]
 
+ const generateId = () => {  
+  return Math.floor(Math.random() * 10000)
+}
+
+
+
+app.use(cors())
 
 app.get('/api/persons', (req, res) => {
     res.json(persons)
@@ -54,7 +63,39 @@ app.get('/api/persons', (req, res) => {
     response.status(204).end()
   })
 
-  const PORT = 3001
+  app.post('/api/persons', (request, response) => {
+    const body = request.body
+  
+    if (!body.number) {
+      return response.status(400).json({ 
+        error: 'number missing' 
+      })
+    }
+    
+    if (!body.name) {
+      return response.status(400).json({ 
+        error: 'name missing' 
+      })
+    }
+
+    if (persons.filter(person => person.name === body.name)){
+      return response.status(400).json({ 
+        error: 'name must be unique' 
+      })
+    }
+  
+    const person = {
+      name: body.name,
+      number: body.number,
+      id: generateId(),
+    }
+  
+    persons = persons.concat(person)
+  
+    response.json(person)
+  })
+
+  const PORT = process.env.PORT || 3001
   app.listen(PORT, () => {
     console.log(`Server running on port ${PORT}`)
   })
